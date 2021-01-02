@@ -232,33 +232,6 @@ class FormulaInstaller
       raise CannotInstallFormulaError, "--force-bottle passed but #{formula.full_name} has no bottle!"
     end
 
-    if Homebrew.default_prefix? && !Homebrew::EnvConfig.developer? &&
-       # TODO: re-enable this on Linux when we merge linuxbrew-core into
-       # homebrew-core and have full bottle coverage.
-       (OS.mac? || ENV["CI"]) &&
-       !build_from_source? && !build_bottle? &&
-       !installed_as_dependency? &&
-       formula.tap&.core_tap? && !formula.bottle_unneeded? && !formula.any_version_installed? &&
-       # Integration tests override homebrew-core locations
-       ENV["HOMEBREW_TEST_TMPDIR"].nil? &&
-       !pour_bottle?
-      message = <<~EOS
-        #{formula}: no bottle available!
-      EOS
-      if !formula.pour_bottle? && formula.pour_bottle_check_unsatisfied_reason
-        message += formula.pour_bottle_check_unsatisfied_reason
-      end
-      message += <<~EOS
-        You can try to install from source with e.g.
-          brew install --build-from-source #{formula}
-        Please note building from source is unsupported. You will encounter build
-        failures with some formulae. If you experience any issues please create pull
-        requests instead of asking for help on Homebrew's GitHub, Twitter or any other
-        official channels.
-      EOS
-      raise CannotInstallFormulaError, message
-    end
-
     type, reason = DeprecateDisable.deprecate_disable_info formula
 
     if type.present?
